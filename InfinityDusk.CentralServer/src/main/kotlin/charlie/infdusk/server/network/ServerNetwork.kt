@@ -1,9 +1,6 @@
 package charlie.infdusk.server.network
 
-import charlie.infdusk.common.network.NetworkMessage
-import charlie.infdusk.common.network.NetworkMessageTypes
-import charlie.infdusk.common.network.channelInitializer
-import charlie.infdusk.common.network.inboundHandler
+import charlie.infdusk.common.network.*
 import charlie.infdusk.server.INFDUSK_SERVER_VERSION
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelFuture
@@ -15,6 +12,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 class ServerNetwork(private val port: Int) {
     private val bootstrap: ServerBootstrap = ServerBootstrap()
     private var future: ChannelFuture? = null
+    private val dispatcher =  Dispatcher()
 
     init {
         bootstrap.group(NioEventLoopGroup(), NioEventLoopGroup())
@@ -26,6 +24,11 @@ class ServerNetwork(private val port: Int) {
                                     0x00,
                                     NetworkMessageTypes.SERVER_VERSION,
                                     INFDUSK_SERVER_VERSION))
+                        }
+
+                        channelRead { ctx, msg ->
+                            if (msg is NetworkMessage)
+                                dispatcher.dispatch(msg, ctx)
                         }
                     })
                 })
@@ -43,4 +46,7 @@ class ServerNetwork(private val port: Int) {
         (future ?: throw IllegalStateException("Server isn't started"))
                 .channel().closeFuture().sync()
     }
+
+    fun addListener(listener: MessageListener) { dispatcher += listener }
+    fun removeListener(listener: MessageListener) { dispatcher -= listener }
 }
