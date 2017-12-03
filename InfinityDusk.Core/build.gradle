@@ -1,0 +1,8 @@
+dependencies {
+    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
+    //compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.12.Final'
+
+    testCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.12.Final'
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
+    //testCompile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+}

@@ -1,0 +1,4 @@
+rootProject.name = 'InfinityDusk'
+include 'InfinityDusk.Core'
+include 'InfinityDusk.Common'
+include 'InfinityDusk.CentralServer'

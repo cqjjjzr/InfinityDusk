@@ -1,0 +1,7 @@
+dependencies {
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.17.Final'
+    //compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.12.Final'
+
+    //testCompile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+
+}
