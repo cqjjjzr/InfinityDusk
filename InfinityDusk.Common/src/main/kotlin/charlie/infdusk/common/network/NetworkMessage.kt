@@ -5,19 +5,21 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
 import io.netty.handler.codec.MessageToByteEncoder
 import java.nio.charset.Charset
+import java.util.*
 import java.util.zip.CRC32
 
 val UTF_8 = Charset.forName("UTF-8")
 
-data class NetworkMessage(val sessionID: Long,
+data class NetworkMessage(val sessionID: UUID,
                           val messageType: NetworkMessageTypes,
                           val body: String)
 
-private const val MESSAGE_HEADER_LENGTH = 8 + 4 + 4 + 4
+private const val MESSAGE_HEADER_LENGTH = 16 + 4 + 4 + 4
 class NetworkMessageDecoder: ByteToMessageDecoder() {
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
         if (buf.readableBytes() < MESSAGE_HEADER_LENGTH) return
-        val sessionID = buf.readLong()
+        val sessionIDMost = buf.readLong()
+        val sessionIDLeast = buf.readLong()
         val messageType = buf.readInt()
 
         val bodyLength = buf.readInt()
@@ -30,13 +32,14 @@ class NetworkMessageDecoder: ByteToMessageDecoder() {
             if (bodyCRC32 != value.toInt()) return
         }
 
-        out += NetworkMessage(sessionID, NetworkMessageTypes[messageType], body)
+        out += NetworkMessage(UUID(sessionIDMost, sessionIDLeast), NetworkMessageTypes[messageType], body)
     }
 }
 
 class NetworkMessageEncoder: MessageToByteEncoder<NetworkMessage>(NetworkMessage::class.java) {
     override fun encode(ctx: ChannelHandlerContext, msg: NetworkMessage, out: ByteBuf) {
-        out.writeLong(msg.sessionID)
+        out.writeLong(msg.sessionID.mostSignificantBits)
+        out.writeLong(msg.sessionID.leastSignificantBits)
         out.writeInt(msg.messageType.typeID)
 
         val bodyBytes = msg.body.toByteArray()

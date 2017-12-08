@@ -1,14 +1,18 @@
 package charlie.infdusk.server.session
 
+import charlie.infdusk.server.serverSessions
 import io.netty.channel.Channel
+import io.netty.util.AttributeKey
 import java.net.InetSocketAddress
-import java.net.SocketAddress
+import java.util.*
+
+val sessionChannelKey = AttributeKey.newInstance<Session>("infdSession")!!
 
 data class Session(
         var networkChannel: Channel
 ) {
-    lateinit var commKey: ByteArray
-    var uid: Int,
+    val sessionID: UUID = UUID.randomUUID()
+    var uid: Int = -1
 
     var status: SessionStatus = SessionStatus.CONNECTED
 
@@ -19,6 +23,11 @@ enum class SessionStatus {
     CONNECTED, LOGGED, DOWN
 }
 
-fun Session.handleLogin() {
-    
+fun prepareSession(uid: Int, channel: Channel): Session {
+    return Session(channel).apply {
+        this.uid = uid
+        status = SessionStatus.LOGGED
+
+        serverSessions[sessionID] = this
+    }
 }

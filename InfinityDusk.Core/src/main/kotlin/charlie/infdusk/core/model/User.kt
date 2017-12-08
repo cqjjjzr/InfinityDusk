@@ -11,7 +11,7 @@ data class User(
         var uid: Int = 0,
 
         var username: String,
-        var passwordSHA1: String,
+        var password: String,
         var salt: String,
 
         var nickname: String,
