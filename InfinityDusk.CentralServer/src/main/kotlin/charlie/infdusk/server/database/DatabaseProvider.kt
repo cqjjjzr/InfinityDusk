@@ -52,10 +52,10 @@ fun shutdownDatabase() {
     databaseSessionFactory = null
 }
 
-fun getUserFromName(username: String): User? {
+fun getUserFromName(username: String): Optional<User> {
     return databaseSessionFactory!!.openSession()
             .createQuery("from User where username=:username", User::class.java)
             .apply {
                 setParameter("username", username)
-            }.list().firstOrNull()
+            }.uniqueResultOptional()
 }

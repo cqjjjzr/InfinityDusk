@@ -13,9 +13,6 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.timeout.IdleStateEvent
 import io.netty.handler.timeout.IdleStateHandler
-import java.util.*
-
-val emptyUUID = UUID(0x00, 0x00)
 
 private val bootstrap: ServerBootstrap = ServerBootstrap()
 private var future: ChannelFuture? = null
@@ -26,11 +23,10 @@ fun initServerNetwork() {
             .channel(NioServerSocketChannel::class.java)
             .childHandler(channelInitializer<SocketChannel> {
                 pipeline()
-                        .addLast(IdleStateHandler(0, 0, 10))
+                        .addLast(IdleStateHandler(0, 0, 30))
                         .addLast(inboundHandler {
                             channelActive {
                                 it.writeAndFlush(NetworkMessage(
-                                        emptyUUID,
                                         NetworkMessageTypes.SERVER_VERSION,
                                         INFDUSK_SERVER_VERSION))
                             }
@@ -48,8 +44,7 @@ fun initServerNetwork() {
 
                             userEventTriggered { ctx, evt ->
                                 if (evt is IdleStateEvent)
-                                    if (ctx.channel().attr(sessionChannelKey).get() == null)
-                                        ctx.close()
+                                    ctx.close()
                             }
                         })
             })

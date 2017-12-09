@@ -5,5 +5,5 @@ data class LoginRequest(
         val password: String
 )
 
-class LoginResponse(val success: Boolean,
-                    val sessionID: String)
+const val LOGIN_RESPONSE_SUCCESS = "success"
+const val LOGIN_RESPONSE_FAILED = "failed"
